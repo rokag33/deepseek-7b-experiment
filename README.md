@@ -71,6 +71,22 @@ To run without 4-bit quantization if you experience memory or device errors:
 ```
 
 Logs will be written to `logs/loader.log`. If you'd like me to verify the logs or further troubleshoot, paste them here and I can help analyze.
+
+### Sharing logs (easy)
+After running `./run_in_codespace.sh`, use `collect_logs.sh` to print the final lines and optionally upload as a private gist (requires `GITHUB_TOKEN`):
+
+```bash
+# show last 200 lines
+./collect_logs.sh --tail 200
+
+# show the last 500 lines
+./collect_logs.sh --tail 500
+
+# upload full loader log as private gist (set GITHUB_TOKEN first):
+GITHUB_TOKEN=ghp_xxx ./collect_logs.sh --upload
+```
+
+If you prefer not to use gists, paste the last 500 lines of `logs/loader.log` into the conversation and I can analyze them.
 # DeepSeek 7B Experiment
 
 This repository contains a simple environment to load and test the DeepSeek 7B model using 4-bit quantization in a Codespace.
