@@ -53,6 +53,24 @@ python load_and_test_model.py
 ### 7B Model Notes
 - Loading the 7B model with 4-bit quantization (`BitsAndBytesConfig`) requires `bitsandbytes` and a CUDA-enabled GPU. If these are missing, use `--simulate` or test with `distilgpt2`.
 - If you hit device or memory errors, run with `--no-quant` or test with a smaller model ID.
+
+### Running in a GPU Codespace (recommended)
+
+1. Create a GPU-enabled Codespace: GitHub -> Code -> Codespaces -> Create codespace on main. Choose a machine with GPU support (e.g., Standard_NV12 or similar) if available on your account.
+2. Wait for the devcontainer to finish building (it will install `git-lfs` and Python packages).
+3. Open a terminal inside the Codespace and run the helper script to create a venv, install packages, attempt the model load, and capture logs:
+
+```bash
+./run_in_codespace.sh
+```
+
+To run without 4-bit quantization if you experience memory or device errors:
+
+```bash
+./run_in_codespace.sh --no-quant
+```
+
+Logs will be written to `logs/loader.log`. If you'd like me to verify the logs or further troubleshoot, paste them here and I can help analyze.
 # DeepSeek 7B Experiment
 
 This repository contains a simple environment to load and test the DeepSeek 7B model using 4-bit quantization in a Codespace.
