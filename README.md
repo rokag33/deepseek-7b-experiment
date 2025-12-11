@@ -58,10 +58,17 @@ python load_and_test_model.py
 
 1. Create a GPU-enabled Codespace: GitHub -> Code -> Codespaces -> Create codespace on main. Choose a machine with GPU support (e.g., Standard_NV12 or similar) if available on your account.
 2. Wait for the devcontainer to finish building (it will install `git-lfs` and Python packages).
-3. Open a terminal inside the Codespace and run the helper script to create a venv, install packages, attempt the model load, and capture logs:
+3. Open a terminal inside the Codespace and run the helper script to create a venv, install packages, attempt the model load, and capture logs. The script will try to detect CUDA via `nvidia-smi` and install a matching PyTorch wheel; use `--cuda` to override if detection fails:
 
 ```bash
+# Run with automatic torch wheel installation (detects CUDA):
 ./run_in_codespace.sh
+
+# Provide a specific CUDA version if detection fails (example: 12.1):
+./run_in_codespace.sh --cuda 12.1
+
+# Skip torch install if you already installed it in your venv:
+./run_in_codespace.sh --skip-torch
 ```
 
 To run without 4-bit quantization if you experience memory or device errors:
