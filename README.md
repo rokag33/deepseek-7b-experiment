@@ -76,6 +76,15 @@ python load_and_test_model.py
 ./run_in_codespace.sh --skip-torch
 ```
 
+## CI and GPU-run workflows
+
+- **CI** runs `quick_run.py --simulate` across Python 3.10 and 3.11 on push or PR to `main` and validates non-torch dependencies. See [.github/workflows/ci.yml](.github/workflows/ci.yml#L1-L25).
+- **GPU Run** is a manual workflow designed to run on a self-hosted GPU runner. Trigger it in GitHub Actions (Actions → GPU Run) with `model_id`, `no_quant`, and optional `cuda` input to run the full 7B loader. See [.github/workflows/gpu_run.yml](.github/workflows/gpu_run.yml#L1-L40).
+
+Notes:
+- GPU-run requires a self-hosted runner labeled with `gpu` for the job to run on your hardware. Follow GitHub docs to register a self-hosted runner: https://docs.github.com/en/actions/hosting-your-own-runners.
+- The GPU-run workflow will attempt to detect CUDA and install a matching `torch` wheel; if detection fails, provide `cuda` input (e.g., `12.1`).
+
 To run without 4-bit quantization if you experience memory or device errors:
 
 ```bash

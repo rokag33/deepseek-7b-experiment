@@ -1,0 +1,56 @@
+name: GPU Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      model_id:
+        description: 'Model ID to load'
+        required: true
+        default: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
+      no_quant:
+        description: 'Set true to not use 4-bit quantization'
+        required: false
+        default: 'false'
+      cuda:
+        description: 'Optional CUDA version string (e.g., 12.1) to force torch wheel install'
+        required: false
+
+jobs:
+  gpu_load:
+    # This should run on a self-hosted GPU runner with labels matching 'self-hosted' and 'gpu'
+    runs-on: [ self-hosted, gpu ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Create venv and activate
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          python -m pip install --upgrade pip setuptools wheel
+
+      - name: Install torch wheel (auto-detect or use input)
+        run: |
+          . .venv/bin/activate
+          ./install_torch_wheel.sh ${INPUT_CUDA}
+        env:
+          INPUT_CUDA: ${{ github.event.inputs.cuda }}
+
+      - name: Install requirements
+        run: |
+          . .venv/bin/activate
+          python -m pip install -r requirements.txt
+
+      - name: Run model loader
+        run: |
+          . .venv/bin/activate
+          if [ "${{ github.event.inputs.no_quant }}" = "true" ]; then
+            python load_and_test_model.py --model "${{ github.event.inputs.model_id }}" --no-quant
+          else
+            python load_and_test_model.py --model "${{ github.event.inputs.model_id }}"
+          fi

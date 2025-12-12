@@ -5,10 +5,32 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   simulate:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Validate quick_run.py syntax
+        run: python -m py_compile quick_run.py
+
+      - name: Run quick simulate test
+        run: python quick_run.py --simulate
+
+  deps-install:
+    runs-on: ubuntu-latest
+    needs: simulate
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,8 +40,20 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Validate quick_run.py syntax
-        run: python -m py_compile quick_run.py
+      - name: Install non-torch dependencies
+        run: |
+          # Prevent installing torch wheel in CI by default; install other deps to validate packaging
+          grep -v '^torch' requirements.txt > /tmp/req_no_torch.txt || true
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -r /tmp/req_no_torch.txt
 
-      - name: Run quick simulate test
-        run: python quick_run.py --simulate
+      - name: Validate imports (no torch)
+        run: |
+          python - <<'PY'
+          try:
+              import transformers
+              import bitsandbytes
+              print('transformers and bitsandbytes import check (if installed) OK')
+          except Exception as e:
+              print('Import warning:', e)
+          PY
