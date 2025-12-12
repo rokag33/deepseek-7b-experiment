@@ -112,6 +112,8 @@ This repository contains a simple environment to load and test the DeepSeek 7B m
 1. Open the repo on GitHub, click **Code** → **Codespaces** → **Create codespace on main**.
 2. Wait for the Codespace to build (postCreateCommand will install Python dependencies).
 
+Note: By default, this repo uses the improved devcontainer configuration at `.devcontainer/devcontainer.json` which installs git-lfs, attempts robust pip setup, and detects CUDA for torch wheel installation. If you prefer the original minimal devcontainer, use the optional `.devcontainer/devcontainer.simple.json` (rename to `devcontainer.json` to use it).
+
 ## Run locally in the Codespace
 ```bash
 python -m pip install -r requirements.txt
