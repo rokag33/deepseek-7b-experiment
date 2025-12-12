@@ -11,6 +11,10 @@ on:
         description: 'Set true to not use 4-bit quantization'
         required: false
         default: 'false'
+      upload_gist:
+        description: 'Set true to upload logs as a private gist using GIST_TOKEN secret'
+        required: false
+        default: 'false'
       cuda:
         description: 'Optional CUDA version string (e.g., 12.1) to force torch wheel install'
         required: false
@@ -49,8 +53,38 @@ jobs:
       - name: Run model loader
         run: |
           . .venv/bin/activate
+          mkdir -p logs
           if [ "${{ github.event.inputs.no_quant }}" = "true" ]; then
-            python load_and_test_model.py --model "${{ github.event.inputs.model_id }}" --no-quant
+            python load_and_test_model.py --model "${{ github.event.inputs.model_id }}" --no-quant | tee logs/loader.log
           else
-            python load_and_test_model.py --model "${{ github.event.inputs.model_id }}"
+            python load_and_test_model.py --model "${{ github.event.inputs.model_id }}" | tee logs/loader.log
           fi
+    - name: Upload logs as Gist (optional)
+    if: ${{ github.event.inputs.upload_gist == 'true' && secrets.GIST_TOKEN != '' }}
+    run: |
+      . .venv/bin/activate
+      python - <<'PY'
+import os, json, urllib.request, sys
+token = os.environ.get('GIST_TOKEN')
+fname = 'logs/loader.log'
+if not token:
+  print('GIST_TOKEN not provided; set it in your repo secrets as GIST_TOKEN')
+  sys.exit(1)
+if not os.path.exists(fname):
+  print('Log file not found:', fname)
+  sys.exit(1)
+with open(fname, 'r', encoding='utf-8', errors='replace') as fh:
+  content = fh.read()
+payload = json.dumps({'public': False, 'files': {os.path.basename(fname): {'content': content}}}).encode('utf-8')
+req = urllib.request.Request('https://api.github.com/gists', data=payload, headers={'Content-Type': 'application/json', 'Authorization': f'token {token}', 'User-Agent': 'ci-gist-uploader'})
+with urllib.request.urlopen(req) as resp:
+  body = resp.read().decode()
+  print('Gist response:', body)
+  try:
+    asjson = json.loads(body)
+    print('Gist URL:', asjson.get('html_url'))
+  except Exception:
+    pass
+PY
+    env:
+      GIST_TOKEN: ${{ secrets.GIST_TOKEN }}

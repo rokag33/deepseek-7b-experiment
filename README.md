@@ -84,6 +84,11 @@ python load_and_test_model.py
 Notes:
 - GPU-run requires a self-hosted runner labeled with `gpu` for the job to run on your hardware. Follow GitHub docs to register a self-hosted runner: https://docs.github.com/en/actions/hosting-your-own-runners.
 - The GPU-run workflow will attempt to detect CUDA and install a matching `torch` wheel; if detection fails, provide `cuda` input (e.g., `12.1`).
+- **Optional**: If you want the workflow to upload `logs/loader.log` as a private Gist for easier sharing, add a repository secret named `GIST_TOKEN` containing a personal access token (scope: `gist`) and set `upload_gist` to true when you run the workflow. The workflow will print the new Gist URL when the upload completes.
+
+Notes:
+- GPU-run requires a self-hosted runner labeled with `gpu` for the job to run on your hardware. Follow GitHub docs to register a self-hosted runner: https://docs.github.com/en/actions/hosting-your-own-runners.
+- The GPU-run workflow will attempt to detect CUDA and install a matching `torch` wheel; if detection fails, provide `cuda` input (e.g., `12.1`).
 
 To run without 4-bit quantization if you experience memory or device errors:
 
