@@ -25,6 +25,11 @@ python load_and_test_model.py
 python load_and_test_model.py --simulate
 ```
 
+If you prefer the original minimal script (no CLI flags), use `load_and_test_model_simple.py`:
+```bash
+python load_and_test_model_simple.py
+```
+
 If you get push failures due to a `git-lfs` hook, ensure `git-lfs` is installed inside the Codespace or push with hook bypass:
 
 ```bash
